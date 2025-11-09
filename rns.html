@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .checkbox-section {
+            margin-bottom: 30px;
+        }
+
+        .checkbox-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-header h3 {
+            margin: 0;
+            color: #555;
+        }
+
+        .checkbox-header .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            color: #555;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            min-height: 100px;
+        }
+
+        .result-card {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 300px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-name {
+            font-size: 2.0em;
+        }
+
+        .config-controls {
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .config-controls button {
+            margin: 5px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .config-controls button.upload-btn {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+        }
+
+        .config-controls button.reset-btn {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .file-label:hover {
+            opacity: 0.9;
+        }
+
+        .cloud-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+        }
+
+        .cloud-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .result-card {
+                min-width: 240px;
+                padding: 25px;
+            }
+            
+            .card-number {
+                font-size: 2.0em;
+            }
+            
+            .card-name {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 随机点名系统</h1>
+        
+        <div class="config-controls" id="configControls">
+            <input type="file" id="configFile" class="file-input" accept=".json">
+            <label for="configFile" class="file-label">📁 上传配置文件</label>
+            <div class="cloud-toggle">
+                <input type="checkbox" id="cloudToggle">
+                <label for="cloudToggle">使用云端配置</label>
+            </div>
+            <button class="reset-btn" onclick="resetToDefault()">🔄 重置为默认配置</button>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="numSelect">抽取人数:</label>
+                <select id="numSelect">
+                    <option value="1">1人</option>
+                    <option value="2">2人</option>
+                    <option value="3">3人</option>
+                    <option value="4">4人</option>
+                    <option value="5">5人</option>
+                    <option value="6">6人</option>
+                    <option value="7">7人</option>
+                    <option value="8">8人</option>
+                    <option value="9">9人</option>
+                    <option value="10">10人</option>
+                </select>
+            </div>
+            
+            <button id="startBtn">开始抽奖</button>
+        </div>
+
+        <div class="checkbox-section">
+            <div class="checkbox-header" onclick="toggleCheckboxSection()">
+                <h3>📋 人员名单</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="checkbox-group" id="nameCheckboxes">
+                <!-- 人员复选框将通过JS动态生成 -->
+            </div>
+        </div>
+
+        <div class="results" id="resultsContainer">
+            <!-- 结果将通过JS动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 云端配置脚本URL
+        const CLOUD_CONFIG_URL = 'https://pan.panyt.eu.org/d/0/config/cr/10/cloud_config.js';
+
+        class RandomPicker {
+            constructor() {
+                this.people = [];
+                this.selectedPeople = [];
+                this.version = null;
+                this.isCheckboxExpanded = false;
+                this.useCloudConfig = false;
+                this.cloudConfigLoaded = false;
+                this.init();
+            }
+
+            async init() {
+                // 立即加载本地配置并渲染界面
+                await this.loadLocalConfig();
+                if (this.people.length === 0) {
+                    this.loadDefaultConfig();
+                }
+                this.renderCheckboxes();
+                this.bindEvents();
+                
+                this.loadCloudConfigStatus();
+                if (this.useCloudConfig) {
+                    this.asyncLoadCloudConfig();
+                }
+            }
+
+            async loadLocalConfig() {
+                const savedConfig = localStorage.getItem('randomPickerConfig');
+                if (savedConfig) {
+                    try {
+                        const config = JSON.parse(savedConfig);
+                        this.people = config.people;
+                        this.version = config.version;
+                    } catch (e) {
+                        console.error('本地配置解析失败:', e);
+                    }
+                }
+            }
+
+            loadDefaultConfig() {
+                this.people = [
+                    { id: 1, name: "小美", weight: 1.0, enabled: true },
+                    { id: 2, name: "小帅", weight: 1.0, enabled: true },
+                    { id: 3, name: "小明", weight: 2.0, enabled: true }
+                ];
+                this.version = "1.0.0";
+            }
+
+            renderCheckboxes() {
+                const container = document.getElementById('nameCheckboxes');
+                container.innerHTML = '';
+                
+                this.people.forEach(person => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `person-${person.id}`;
+                    checkbox.checked = person.enabled;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = `person-${person.id}`;
+                    label.textContent = person.name;
+                    
+                    checkbox.addEventListener('change', (e) => {
+                        person.enabled = e.target.checked;
+                    });
+                    
+                    checkboxItem.appendChild(checkbox);
+                    checkboxItem.appendChild(label);
+                    container.appendChild(checkboxItem);
+                });
+            }
+
+            saveConfig() {
+                const config = {
+                    version: this.version,
+                    people: this.people
+                };
+                localStorage.setItem('randomPickerConfig', JSON.stringify(config));
+            }
+
+            loadCloudConfigStatus() {
+                const status = localStorage.getItem('useCloudConfig');
+                this.useCloudConfig = status === 'true';
+                document.getElementById('cloudToggle').checked = this.useCloudConfig;
+            }
+
+            saveCloudConfigStatus() {
+                localStorage.setItem('useCloudConfig', this.useCloudConfig);
+            }
+
+            async asyncLoadCloudConfig() {
+                try {
+                    console.log('正在加载云端配置...');
+                    
+                    const response = await fetch(CLOUD_CONFIG_URL + '?t=' + Date.now());
+                    if (!response.ok) {
+                        throw new Error('网络响应不正常');
+                    }
+                    
+                    const scriptContent = await response.text();
+                    
+                    // 动态执行脚本
+                    const script = document.createElement('script');
+                    script.textContent = scriptContent;
+                    document.head.appendChild(script);
+                    
+                    if (window.CLOUD_CONFIG) {
+                        this.people = window.CLOUD_CONFIG.people;
+                        this.version = window.CLOUD_CONFIG.version;
+                        this.cloudConfigLoaded = true;
+                        
+                        // 保存到本地存储
+                        this.saveConfig();
+                        
+                        // 更新界面
+                        this.renderCheckboxes();
+                        
+                        console.log('云端配置已加载并应用');
+                    } else {
+                        throw new Error('云端配置格式不正确');
+                    }
+                    
+                    // 移除脚本元素
+                    document.head.removeChild(script);
+                } catch (error) {
+                    console.error('云端配置加载失败:', error);
+                }
+            }
+
+            bindEvents() {
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    this.startPicking();
+                });
+
+                document.getElementById('cloudToggle').addEventListener('change', (e) => {
+                    this.useCloudConfig = e.target.checked;
+                    this.saveCloudConfigStatus();
+                    
+                    if (this.useCloudConfig && !this.cloudConfigLoaded) {
+                        this.asyncLoadCloudConfig();
+                    }
+                });
+
+                document.getElementById('configFile').addEventListener('change', (e) => {
+                    this.handleFileUpload(e.target.files[0]);
+                });
+
+                // 全选功能
+                const selectAllCheckbox = document.createElement('input');
+                selectAllCheckbox.type = 'checkbox';
+                selectAllCheckbox.id = 'selectAll';
+                selectAllCheckbox.addEventListener('change', (e) => {
+                    const checkboxes = document.querySelectorAll('#nameCheckboxes input[type="checkbox"]');
+                    checkboxes.forEach(cb => {
+                        cb.checked = e.target.checked;
+                        const person = this.people.find(p => p.id == cb.id.split('-')[1]);
+                        if (person) person.enabled = e.target.checked;
+                    });
+                });
+
+                const selectAllLabel = document.createElement('label');
+                selectAllLabel.htmlFor = 'selectAll';
+                selectAllLabel.textContent = '全选';
+                selectAllLabel.style.fontWeight = 'bold';
+                selectAllLabel.style.color = '#667eea';
+
+                const selectAllContainer = document.createElement('div');
+                selectAllContainer.className = 'checkbox-item';
+                selectAllContainer.appendChild(selectAllCheckbox);
+                selectAllContainer.appendChild(selectAllLabel);
+
+                const checkboxGroup = document.getElementById('nameCheckboxes');
+                checkboxGroup.insertBefore(selectAllContainer, checkboxGroup.firstChild);
+            }
+
+            handleFileUpload(file) {
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const content = e.target.result;
+                        let config;
+                        try {
+                            config = JSON.parse(content);
+                        } catch {
+                            throw new Error('请上传JSON格式的配置文件');
+                        }
+
+                        if (config.people && Array.isArray(config.people)) {
+                            this.people = config.people;
+                            this.version = config.version || '1.0.0';
+                            this.saveConfig();
+                            this.renderCheckboxes();
+                            alert('配置文件加载成功！');
+                        } else {
+                            throw new Error('配置文件格式不正确');
+                        }
+                    } catch (error) {
+                        alert('配置文件解析失败: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            startPicking() {
+                const numToPick = parseInt(document.getElementById('numSelect').value);
+                const enabledPeople = this.people.filter(p => p.enabled);
+
+                if (enabledPeople.length < numToPick) {
+                    alert(`启用的人员数量(${enabledPeople.length})少于要抽取的数量(${numToPick})`);
+                    return;
+                }
+
+                this.selectedPeople = this.weightedRandomPick(enabledPeople, numToPick);
+                this.displayResults();
+            }
+
+            weightedRandomPick(people, count) {
+                const result = [];
+                let availablePeople = [...people];
+
+                for (let i = 0; i < count; i++) {
+                    if (availablePeople.length === 0) break;
+
+                    // 计算总权重
+                    const totalWeight = availablePeople.reduce((sum, person) => sum + person.weight, 0);
+                    
+                    // 使用 Crypto API 生成更安全的随机数
+                    const randomArray = new Uint32Array(1);
+                    window.crypto.getRandomValues(randomArray);
+                    
+                    // 将随机数转换为 0-1 之间的浮点数
+                    const random = (randomArray[0] / 4294967295) * totalWeight;
+                    
+                    let currentWeight = 0;
+                    let selectedPerson = null;
+                    
+                    for (let j = 0; j < availablePeople.length; j++) {
+                        currentWeight += availablePeople[j].weight;
+                        if (random <= currentWeight) {
+                            selectedPerson = availablePeople[j];
+                            availablePeople.splice(j, 1); // 移除已选人员，避免重复
+                            break;
+                        }
+                    }
+
+                    if (selectedPerson) {
+                        result.push(selectedPerson);
+                    }
+                }
+
+                return result;
+            }
+
+            displayResults() {
+                const container = document.getElementById('resultsContainer');
+                container.innerHTML = '';
+
+                this.selectedPeople.forEach(person => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="card-number">#${person.id}</div>
+                        <div class="card-name">${person.name}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        // 切换复选框区域的显示/隐藏
+        function toggleCheckboxSection() {
+            const checkboxGroup = document.getElementById('nameCheckboxes');
+            const toggleIcon = document.querySelector('.toggle-icon');
+            
+            if (checkboxGroup.style.display === 'grid' || checkboxGroup.style.display === '') {
+                checkboxGroup.style.display = 'none';
+                toggleIcon.textContent = '▼';
+            } else {
+                checkboxGroup.style.display = 'grid';
+                toggleIcon.textContent = '▲';
+            }
+        }
+
+        // 显示配置控制按钮
+        function showConfigControls() {
+            document.getElementById('configControls').style.display = 'block';
+        }
+
+        // 重置为默认配置
+        function resetToDefault() {
+            if (confirm('确定要重置为默认配置吗？')) {
+                localStorage.removeItem('randomPickerConfig');
+                localStorage.removeItem('useCloudConfig');
+                location.reload();
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new RandomPicker();
+        });
+    </script>
+</body>
+</html>
